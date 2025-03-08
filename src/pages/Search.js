@@ -14,19 +14,18 @@ const Search = () => {
   const [stop, setStop] = useState(false)
   const [firstLoad, setFirstLoad] = useState(false)
 
-
   const { BtnRender, data, loading, error } = useInfinityQuery({
-    url: `/products?search=${value}&sort=${sort}&limit=${limit}`,
+    url: `/products?title=${value}&sort=${sort}&limit=${limit}`,
     depens: [value, sort],
-    opt: { stop, firstLoad }
+    opt: { stop, firstLoad },
   })
 
   useEffect(() => {
-    if(data?.products) {
-      setProducts(prev => [...prev, ...data.products])
+    if (data?.products) {
+      setProducts((prev) => [...prev, ...data.products])
       setFirstLoad(true)
 
-      if(data.products.length < limit) setStop(true)
+      if (data.products.length < limit) setStop(true)
     }
   }, [data?.products, limit])
 
@@ -36,16 +35,14 @@ const Search = () => {
     setFirstLoad(false)
   }, [value, sort])
 
-
-
   return (
     <>
       <Sorting />
       <Products products={products} />
-      { loading && <p style={{textAlign: 'center'}}>Loading...</p> }
-      { error && <p style={{textAlign: 'center'}}>{error}</p> }
+      {loading && <p style={{ textAlign: 'center' }}>Loading...</p>}
+      {error && <p style={{ textAlign: 'center' }}>{error}</p>}
 
-      { BtnRender() }
+      {BtnRender()}
     </>
   )
 }

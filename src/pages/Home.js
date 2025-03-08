@@ -8,7 +8,7 @@ import useQuery from '../hooks/useQuery'
 
 const Home = () => {
   const [products, setProducts] = useState([])
-  const [limit, setLimit] = useState(5)
+  const [limit, setLimit] = useState(10)
 
   const { page, sort, refetching } = useMyContext()
 
@@ -18,24 +18,23 @@ const Home = () => {
   )
 
   useEffect(() => {
-    if(data?.products) setProducts(data.products)
+    if (data?.products) setProducts(data.products)
   }, [data?.products])
 
   const totalPages = useMemo(() => {
-    if(!data?.count) return 0;
+    if (!data?.count) return 0
     return Math.ceil(data.count / limit)
   }, [data?.count, limit])
 
-
-  return(
+  return (
     <main>
       <Sorting page={page} />
       <Products products={products} />
-      { loading && <p style={{textAlign: 'center'}}>Loading...</p> }
-      { error && <p style={{textAlign: 'center'}}>{error}</p> }
+      {loading && <p style={{ textAlign: 'center' }}>Loading...</p>}
+      {error && <p style={{ textAlign: 'center' }}>{error}</p>}
       <Pagination totalPages={totalPages} />
     </main>
   )
 }
 
-export default Home;
+export default Home
