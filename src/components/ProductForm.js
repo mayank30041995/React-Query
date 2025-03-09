@@ -8,57 +8,52 @@ const ProductForm = ({ btnTxt, data }) => {
 
   const queryClient = useQueryClient()
   const keys = queryClient.getQueryData('keys')
-  
-  const create = useMutation(createProduct, 
-    {
-      onSuccess: () => toast.success('Create Product!'),
-      onError: (error) => handleError(error),
-      onSettled: () => queryClient.invalidateQueries({
-        predicate: query => query.queryKey.startsWith('/products')
+
+  const create = useMutation(createProduct, {
+    onSuccess: () => toast.success('Create Product!'),
+    onError: (error) => handleError(error),
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey.startsWith('/products'),
+      }),
+  })
+
+  const update = useMutation(updateProduct, {
+    onMutate: (data) => {
+      if (!keys?.k1) return
+
+      queryClient.setQueryData(keys?.k1, (oldData) => {
+        const products = oldData?.products.map((product) =>
+          product._id === data.id ? { ...product, ...data.newData } : product
+        )
+
+        return { ...oldData, products }
       })
-    }
-  )
-
-  const update = useMutation(updateProduct,
-    {
-      onMutate: (data) => {
-        if(!keys?.k1) return;
-
-        queryClient.setQueryData(keys?.k1, (oldData) => {
-          const products = oldData?.products.map(product => (
-            product._id === data.id
-            ? {...product, ...data.newData}
-            : product
-          ))
-          
-          return {...oldData, products}
-        })
-      },
-      onSuccess: () => toast.success('Update Product!'),
-      onError: (error) => handleError(error),
-      onSettled: () => {
-        if(keys?.k2) queryClient.invalidateQueries(keys.k2)
-      }
-    } 
-  )
+    },
+    onSuccess: () => toast.success('Update Product!'),
+    onError: (error) => handleError(error),
+    onSettled: () => {
+      if (keys?.k2) queryClient.invalidateQueries(keys.k2)
+    },
+  })
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const children = multiRef.current.children;
+    const children = multiRef.current.children
 
     const newData = [...children].reduce((obj, child) => {
-      if(!child.name) return obj;
-      return {...obj, [child.name]:child.value}
+      if (!child.name) return obj
+      return { ...obj, [child.name]: child.value }
     }, {})
 
-    if(data){
-      const newArr = {...newData, price: Number(newData.price)} 
+    if (data) {
+      const newArr = { ...newData, price: Number(newData.price) }
       const result = shallowEqual(newArr, data)
-      if(result) return;
-    
+      if (result) return
+
       // mutate(() => updateProduct({id: data._id, newData}))
-      update.mutate({id: data._id, newData})
-    }else{
+      update.mutate({ id: data._id, newData })
+    } else {
       // mutate(() => createProduct(newData))
       create.mutate(newData)
     }
@@ -67,47 +62,59 @@ const ProductForm = ({ btnTxt, data }) => {
   function shallowEqual(obj1, obj2) {
     const keys = Object.keys(obj1)
 
-    for(let key of keys){
+    for (let key of keys) {
       if (obj1[key] !== obj2[key]) {
-        return false;
+        return false
       }
     }
-    return true;
+    return true
   }
 
-
   return (
-    <div className='product_form'>
+    <div className="product_form">
       <form ref={multiRef} onSubmit={handleSubmit}>
-        <input type="text" name="title"
-        placeholder="Product title" required
-        defaultValue={data?.title}
+        <input
+          type="text"
+          name="title"
+          placeholder="Product title"
+          required
+          defaultValue={data?.title}
         />
 
-        <input type="text" name="description"
-        placeholder="Product description" required
-        defaultValue={data?.description}
+        <input
+          type="text"
+          name="description"
+          placeholder="Product description"
+          required
+          defaultValue={data?.description}
         />
 
-        <input type="text" name="price"
-        placeholder="Product price" required
-        defaultValue={data?.price}
+        <input
+          type="text"
+          name="price"
+          placeholder="Product price"
+          required
+          defaultValue={data?.price}
         />
 
-        <input type="text" name="category"
-        placeholder="Product category" required
-        defaultValue={data?.category}
+        <input
+          type="text"
+          name="category"
+          placeholder="Product category"
+          required
+          defaultValue={data?.category}
         />
 
-        <input type="text" name="image"
-        placeholder="Product image" required
-        defaultValue={data?.image}
+        <input
+          type="text"
+          name="images"
+          placeholder="Product image"
+          required
+          defaultValue={data?.images.url}
         />
-        
+
         <button disabled={create.isLoading || update.isLoading}>
-          { create.isLoading || update.isLoading 
-            ? 'Loading..' : btnTxt 
-          }
+          {create.isLoading || update.isLoading ? 'Loading..' : btnTxt}
         </button>
       </form>
     </div>

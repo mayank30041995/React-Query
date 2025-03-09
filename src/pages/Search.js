@@ -17,9 +17,9 @@ const Search = () => {
   const { ref, inView } = useInView()
   const queryClient = useQueryClient()
 
-  const key = `/products?search=${value}&sort=${sort}&limit=${limit}`;
+  const key = `/products?title=${value}&sort=${sort}&limit=${limit}`
 
-  queryClient.setQueryData('keys', {k1: '', k2: key})
+  queryClient.setQueryData('keys', { k1: '', k2: key })
 
   const {
     data,
@@ -31,17 +31,17 @@ const Search = () => {
   } = useInfiniteQuery(key, getInfiniteData, {
     getNextPageParam: (lastPage, pages) => {
       // console.log({lastPage, pages})
-      const { products } = lastPage;
-      if(products.length >= limit){
-        return pages.length + 1;
-      }else{
+      const { products } = lastPage
+      if (products.length >= limit) {
+        return pages.length + 1
+      } else {
         return undefined
       }
     },
-  }) 
+  })
 
   useEffect(() => {
-    if(inView){
+    if (inView) {
       fetchNextPage()
     }
   }, [inView, fetchNextPage])
@@ -50,32 +50,26 @@ const Search = () => {
   return (
     <>
       <Sorting />
-      
-      <div className='products'>
-        {
-          data?.pages.map((page, index) => (
-            <Products key={index} products={page.products} />
-          ))
-        }
-      </div>
-      
-      { 
-        isFetching && <p style={{textAlign: 'center'}}>Loading...</p> 
-      }
-      
-      { 
-        error && <p style={{textAlign: 'center'}}>{error.message}</p> 
-      }
 
-      <button className="btn-load_more"
-      onClick={() => fetchNextPage()} 
-      disabled={!hasNextPage || isFetchingNextPage}
-      ref={ref}
-      style={{display: (data && hasNextPage) ? 'block' : 'none'}}
+      <div className="products">
+        {data?.pages.map((page, index) => (
+          <Products key={index} products={page.products} />
+        ))}
+      </div>
+
+      {isFetching && <p style={{ textAlign: 'center' }}>Loading...</p>}
+
+      {error && <p style={{ textAlign: 'center' }}>{error.message}</p>}
+
+      <button
+        className="btn-load_more"
+        onClick={() => fetchNextPage()}
+        disabled={!hasNextPage || isFetchingNextPage}
+        ref={ref}
+        style={{ display: data && hasNextPage ? 'block' : 'none' }}
       >
         Load more
       </button>
-
     </>
   )
 }
